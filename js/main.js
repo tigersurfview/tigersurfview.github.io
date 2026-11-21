@@ -4,7 +4,9 @@
 (function () {
   "use strict";
 
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
   /* ---------- header: solid on scroll ---------- */
   function initHeader() {
@@ -28,7 +30,12 @@
     function open() {
       nav.classList.add("open");
       openBtn.setAttribute("aria-expanded", "true");
-      if (overlay) { overlay.hidden = false; requestAnimationFrame(function () { overlay.classList.add("show"); }); }
+      if (overlay) {
+        overlay.hidden = false;
+        requestAnimationFrame(function () {
+          overlay.classList.add("show");
+        });
+      }
       document.body.style.overflow = "hidden";
     }
     function close() {
@@ -36,7 +43,9 @@
       openBtn.setAttribute("aria-expanded", "false");
       if (overlay) {
         overlay.classList.remove("show");
-        setTimeout(function () { overlay.hidden = true; }, 300);
+        setTimeout(function () {
+          overlay.hidden = true;
+        }, 300);
       }
       document.body.style.overflow = "";
     }
@@ -45,7 +54,30 @@
     if (closeBtn) closeBtn.addEventListener("click", close);
     if (overlay) overlay.addEventListener("click", close);
     nav.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () { if (nav.classList.contains("open")) close(); });
+      a.addEventListener("click", function (e) {
+        var hash = a.getAttribute("href") || "";
+        var target =
+          hash.charAt(0) === "#" && hash.length > 1
+            ? document.getElementById(hash.slice(1))
+            : null;
+        var wasOpen = nav.classList.contains("open");
+        if (wasOpen) close();
+        if (!target) return; // external / mailto links behave normally
+
+        e.preventDefault();
+        // Wait a frame so body overflow is restored before scrolling.
+        requestAnimationFrame(function () {
+          var reduce = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+          ).matches;
+          target.scrollIntoView({
+            behavior: reduce ? "auto" : "smooth",
+            block: "start",
+          });
+          if (history.pushState) history.pushState(null, "", hash);
+          else location.hash = hash;
+        });
+      });
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && nav.classList.contains("open")) close();
@@ -59,7 +91,10 @@
     if (!form) return;
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!form.checkValidity()) { form.reportValidity(); return; }
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
       if (note) note.textContent = message;
       if (formId !== "bookingForm") form.reset();
     });
@@ -84,7 +119,9 @@
       if (w <= 1040) return 2;
       return 3;
     }
-    function maxIndex() { return Math.max(0, cards.length - perView()); }
+    function maxIndex() {
+      return Math.max(0, cards.length - perView());
+    }
 
     function buildDots() {
       if (!dotsWrap) return;
@@ -95,7 +132,10 @@
           b.className = "rc-dot" + (i === index ? " active" : "");
           b.type = "button";
           b.setAttribute("aria-label", "Go to review " + (i + 1));
-          b.addEventListener("click", function () { go(i); restart(); });
+          b.addEventListener("click", function () {
+            go(i);
+            restart();
+          });
           dotsWrap.appendChild(b);
         })(i);
       }
@@ -109,30 +149,53 @@
     function go(i) {
       index = Math.max(0, Math.min(i, maxIndex()));
       var target = cards[index];
-      track.style.transform = "translateX(" + (-target.offsetLeft) + "px)";
+      track.style.transform = "translateX(" + -target.offsetLeft + "px)";
       updateDots();
     }
-    function nextSlide() { go(index >= maxIndex() ? 0 : index + 1); }
-    function prevSlide() { go(index <= 0 ? maxIndex() : index - 1); }
+    function nextSlide() {
+      go(index >= maxIndex() ? 0 : index + 1);
+    }
+    function prevSlide() {
+      go(index <= 0 ? maxIndex() : index - 1);
+    }
 
     function startAuto() {
       if (reduceMotion || cards.length <= perView()) return;
       autoTimer = window.setInterval(nextSlide, 6000);
     }
     function restart() {
-      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
       startAuto();
     }
 
-    if (next) next.addEventListener("click", function () { nextSlide(); restart(); });
-    if (prev) prev.addEventListener("click", function () { prevSlide(); restart(); });
-    viewport.addEventListener("mouseenter", function () { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } });
+    if (next)
+      next.addEventListener("click", function () {
+        nextSlide();
+        restart();
+      });
+    if (prev)
+      prev.addEventListener("click", function () {
+        prevSlide();
+        restart();
+      });
+    viewport.addEventListener("mouseenter", function () {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+    });
     viewport.addEventListener("mouseleave", startAuto);
 
     var rt;
     window.addEventListener("resize", function () {
       clearTimeout(rt);
-      rt = setTimeout(function () { buildDots(); go(index); }, 150);
+      rt = setTimeout(function () {
+        buildDots();
+        go(index);
+      }, 150);
     });
 
     buildDots();
@@ -151,7 +214,9 @@
     var nextBtn = document.getElementById("lbNext");
     if (!grid || !box || !img) return;
 
-    var items = Array.prototype.slice.call(grid.querySelectorAll(".gallery-item"));
+    var items = Array.prototype.slice.call(
+      grid.querySelectorAll(".gallery-item"),
+    );
     var current = 0;
     var lastFocus = null;
 
@@ -168,25 +233,40 @@
       show(i);
       box.hidden = false;
       box.setAttribute("aria-hidden", "false");
-      requestAnimationFrame(function () { box.classList.add("open"); });
+      requestAnimationFrame(function () {
+        box.classList.add("open");
+      });
       document.body.style.overflow = "hidden";
       if (closeBtn) closeBtn.focus();
     }
     function close() {
       box.classList.remove("open");
       box.setAttribute("aria-hidden", "true");
-      setTimeout(function () { box.hidden = true; img.src = ""; }, 300);
+      setTimeout(function () {
+        box.hidden = true;
+        img.src = "";
+      }, 300);
       document.body.style.overflow = "";
       if (lastFocus) lastFocus.focus();
     }
 
     items.forEach(function (el, i) {
-      el.addEventListener("click", function () { open(i); });
+      el.addEventListener("click", function () {
+        open(i);
+      });
     });
     if (closeBtn) closeBtn.addEventListener("click", close);
-    if (nextBtn) nextBtn.addEventListener("click", function () { show(current + 1); });
-    if (prevBtn) prevBtn.addEventListener("click", function () { show(current - 1); });
-    box.addEventListener("click", function (e) { if (e.target === box) close(); });
+    if (nextBtn)
+      nextBtn.addEventListener("click", function () {
+        show(current + 1);
+      });
+    if (prevBtn)
+      prevBtn.addEventListener("click", function () {
+        show(current - 1);
+      });
+    box.addEventListener("click", function (e) {
+      if (e.target === box) close();
+    });
     document.addEventListener("keydown", function (e) {
       if (box.hidden) return;
       if (e.key === "Escape") close();
@@ -201,8 +281,20 @@
     initMobileNav();
     initReviews();
     initLightbox();
-    wireForm("bookingForm", "bookingNote", "Thanks — we found 6 suites free for your dates. Our team will email you a booking link shortly.");
-    wireForm("enquiryForm", "enquiryNote", "Your enquiry is on its way. We usually reply within a few hours.");
-    wireForm("newsForm", "newsNote", "You're on the list. Watch for the next Slow Letter.");
+    wireForm(
+      "bookingForm",
+      "bookingNote",
+      "Thanks — we found 6 suites free for your dates. Our team will email you a booking link shortly.",
+    );
+    wireForm(
+      "enquiryForm",
+      "enquiryNote",
+      "Your enquiry is on its way. We usually reply within a few hours.",
+    );
+    wireForm(
+      "newsForm",
+      "newsNote",
+      "You're on the list. Watch for the next Slow Letter.",
+    );
   });
 })();

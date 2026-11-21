@@ -285,6 +285,7 @@ section[id] {
 }
 .brand-mark {
   flex: none;
+  color: var(--sand);
 }
 .brand-word {
   line-height: 1;
@@ -292,11 +293,10 @@ section[id] {
 
 /* header scrolled state */
 .site-header.scrolled {
-  background: var(--sand);
-  border-bottom-color: var(--line);
+  background: var(--turquoise);
   box-shadow: 0 6px 24px rgba(42, 36, 32, 0.07);
 }
-.site-header.scrolled .brand,
+.site-header.scrolled,
 .site-header.scrolled .header-phone,
 .site-header.scrolled .nav-toggle {
   color: var(--ink);
@@ -383,7 +383,6 @@ section[id] {
 .nav-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(42, 36, 32, 0.55);
   z-index: 940;
   opacity: 0;
   transition: opacity 0.3s var(--ease);

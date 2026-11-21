@@ -25,62 +25,104 @@
     var openBtn = document.getElementById("navToggle");
     var closeBtn = document.getElementById("navClose");
     var overlay = document.getElementById("navOverlay");
+    var header = document.getElementById("siteHeader");
     if (!nav || !openBtn) return;
 
+    var closeTimer = null;
+
     function open() {
+      if (closeTimer) {
+        window.clearTimeout(closeTimer);
+        closeTimer = null;
+      }
+
       nav.classList.add("open");
       openBtn.setAttribute("aria-expanded", "true");
+
       if (overlay) {
         overlay.hidden = false;
-        requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
           overlay.classList.add("show");
         });
       }
+
       document.body.style.overflow = "hidden";
     }
+
     function close() {
       nav.classList.remove("open");
       openBtn.setAttribute("aria-expanded", "false");
+
       if (overlay) {
         overlay.classList.remove("show");
-        setTimeout(function () {
+        if (closeTimer) window.clearTimeout(closeTimer);
+        closeTimer = window.setTimeout(function () {
           overlay.hidden = true;
+          closeTimer = null;
         }, 300);
       }
+
+      // Restore page scrolling before attempting to move to a section.
       document.body.style.overflow = "";
+    }
+
+    function scrollToSection(target, hash) {
+      // Wait until the menu has started closing and body scrolling is restored.
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          var headerHeight = header
+            ? Math.ceil(header.getBoundingClientRect().height)
+            : 0;
+          var targetTop =
+            target.getBoundingClientRect().top +
+            window.pageYOffset -
+            headerHeight;
+
+          window.scrollTo({
+            top: Math.max(0, targetTop),
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+              .matches
+              ? "auto"
+              : "smooth",
+          });
+
+          if (window.history && window.history.pushState) {
+            window.history.pushState(null, "", hash);
+          } else {
+            window.location.hash = hash;
+          }
+        });
+      });
     }
 
     openBtn.addEventListener("click", open);
     if (closeBtn) closeBtn.addEventListener("click", close);
     if (overlay) overlay.addEventListener("click", close);
-    nav.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function (e) {
-        var hash = a.getAttribute("href") || "";
-        var target =
-          hash.charAt(0) === "#" && hash.length > 1
-            ? document.getElementById(hash.slice(1))
-            : null;
-        var wasOpen = nav.classList.contains("open");
-        if (wasOpen) close();
-        if (!target) return; // external / mailto links behave normally
 
-        e.preventDefault();
-        // Wait a frame so body overflow is restored before scrolling.
-        requestAnimationFrame(function () {
-          var reduce = window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-          ).matches;
-          target.scrollIntoView({
-            behavior: reduce ? "auto" : "smooth",
-            block: "start",
-          });
-          if (history.pushState) history.pushState(null, "", hash);
-          else location.hash = hash;
-        });
-      });
+    // Delegate the click so every in-page link inside the mobile nav is handled.
+    nav.addEventListener("click", function (event) {
+      var link = event.target.closest("a");
+      if (!link || !nav.contains(link)) return;
+
+      var hash = link.getAttribute("href") || "";
+      if (hash.charAt(0) !== "#" || hash.length < 2) {
+        close();
+        return; // Email, phone, and external links retain their normal behavior.
+      }
+
+      var target = document.getElementById(hash.slice(1));
+      if (!target) return;
+
+      event.preventDefault();
+      close();
+      scrollToSection(target, hash);
     });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && nav.classList.contains("open")) close();
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && nav.classList.contains("open")) {
+        close();
+        openBtn.focus();
+      }
     });
   }
 

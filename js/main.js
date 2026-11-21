@@ -20,66 +20,94 @@
   }
 
   /* ---------- mobile nav ---------- */
+
   function initMobileNav() {
     var nav = document.getElementById("mainNav");
     var openBtn = document.getElementById("navToggle");
     var closeBtn = document.getElementById("navClose");
     var overlay = document.getElementById("navOverlay");
+    var header = document.getElementById("siteHeader");
 
     if (!nav || !openBtn) return;
 
-    function open() {
+    function openMenu() {
       nav.classList.add("open");
       openBtn.setAttribute("aria-expanded", "true");
 
       if (overlay) {
         overlay.hidden = false;
-        requestAnimationFrame(function () {
-          overlay.classList.add("show");
-        });
+        overlay.classList.add("show");
       }
 
       document.body.style.overflow = "hidden";
     }
 
-    function close() {
+    function closeMenu() {
       nav.classList.remove("open");
       openBtn.setAttribute("aria-expanded", "false");
 
       if (overlay) {
         overlay.classList.remove("show");
-
-        // Hide immediately so it cannot interfere with page interaction.
         overlay.hidden = true;
       }
 
-      // Restore normal page scrolling.
       document.body.style.overflow = "";
     }
 
-    openBtn.addEventListener("click", open);
+    openBtn.addEventListener("click", openMenu);
 
     if (closeBtn) {
-      closeBtn.addEventListener("click", close);
+      closeBtn.addEventListener("click", closeMenu);
     }
 
     if (overlay) {
-      overlay.addEventListener("click", close);
+      overlay.addEventListener("click", closeMenu);
     }
 
-    // Let the browser handle anchor navigation naturally.
+    // Capture section-link clicks and scroll directly to the target.
     nav.addEventListener("click", function (event) {
-      var link = event.target.closest("a");
+      var link = event.target.closest("a[href^='#']");
 
       if (!link || !nav.contains(link)) return;
 
-      // Close the menu without preventing the link's default action.
-      close();
+      var id = link.getAttribute("href").substring(1);
+      var target = document.getElementById(id);
+
+      if (!target) return;
+
+      event.preventDefault();
+
+      closeMenu();
+
+      // Allow the menu and page scroll lock to close first.
+      window.setTimeout(function () {
+        var headerHeight = header ? header.offsetHeight : 0;
+        var targetPosition =
+          target.getBoundingClientRect().top +
+          window.pageYOffset -
+          headerHeight -
+          12;
+
+        if (history.pushState) {
+          history.pushState(null, "", "#" + id);
+        } else {
+          window.location.hash = id;
+        }
+
+        var reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+
+        window.scrollTo({
+          top: Math.max(0, targetPosition),
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
+      }, 50);
     });
 
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && nav.classList.contains("open")) {
-        close();
+        closeMenu();
         openBtn.focus();
       }
     });

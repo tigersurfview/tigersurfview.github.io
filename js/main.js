@@ -25,23 +25,16 @@
     var openBtn = document.getElementById("navToggle");
     var closeBtn = document.getElementById("navClose");
     var overlay = document.getElementById("navOverlay");
-    var header = document.getElementById("siteHeader");
+
     if (!nav || !openBtn) return;
 
-    var closeTimer = null;
-
     function open() {
-      if (closeTimer) {
-        window.clearTimeout(closeTimer);
-        closeTimer = null;
-      }
-
       nav.classList.add("open");
       openBtn.setAttribute("aria-expanded", "true");
 
       if (overlay) {
         overlay.hidden = false;
-        window.requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
           overlay.classList.add("show");
         });
       }
@@ -55,67 +48,33 @@
 
       if (overlay) {
         overlay.classList.remove("show");
-        if (closeTimer) window.clearTimeout(closeTimer);
-        closeTimer = window.setTimeout(function () {
-          overlay.hidden = true;
-          closeTimer = null;
-        }, 300);
+
+        // Hide immediately so it cannot interfere with page interaction.
+        overlay.hidden = true;
       }
 
-      // Restore page scrolling before attempting to move to a section.
+      // Restore normal page scrolling.
       document.body.style.overflow = "";
     }
 
-    function scrollToSection(target, hash) {
-      // Wait until the menu has started closing and body scrolling is restored.
-      window.requestAnimationFrame(function () {
-        window.requestAnimationFrame(function () {
-          var headerHeight = header
-            ? Math.ceil(header.getBoundingClientRect().height)
-            : 0;
-          var targetTop =
-            target.getBoundingClientRect().top +
-            window.pageYOffset -
-            headerHeight;
+    openBtn.addEventListener("click", open);
 
-          window.scrollTo({
-            top: Math.max(0, targetTop),
-            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-              .matches
-              ? "auto"
-              : "smooth",
-          });
-
-          if (window.history && window.history.pushState) {
-            window.history.pushState(null, "", hash);
-          } else {
-            window.location.hash = hash;
-          }
-        });
-      });
+    if (closeBtn) {
+      closeBtn.addEventListener("click", close);
     }
 
-    openBtn.addEventListener("click", open);
-    if (closeBtn) closeBtn.addEventListener("click", close);
-    if (overlay) overlay.addEventListener("click", close);
+    if (overlay) {
+      overlay.addEventListener("click", close);
+    }
 
-    // Delegate the click so every in-page link inside the mobile nav is handled.
+    // Let the browser handle anchor navigation naturally.
     nav.addEventListener("click", function (event) {
       var link = event.target.closest("a");
+
       if (!link || !nav.contains(link)) return;
 
-      var hash = link.getAttribute("href") || "";
-      if (hash.charAt(0) !== "#" || hash.length < 2) {
-        close();
-        return; // Email, phone, and external links retain their normal behavior.
-      }
-
-      var target = document.getElementById(hash.slice(1));
-      if (!target) return;
-
-      event.preventDefault();
+      // Close the menu without preventing the link's default action.
       close();
-      scrollToSection(target, hash);
     });
 
     document.addEventListener("keydown", function (event) {
@@ -161,6 +120,7 @@
       if (w <= 1040) return 2;
       return 3;
     }
+
     function maxIndex() {
       return Math.max(0, cards.length - perView());
     }
@@ -182,21 +142,25 @@
         })(i);
       }
     }
+
     function updateDots() {
       if (!dotsWrap) return;
       Array.prototype.forEach.call(dotsWrap.children, function (d, i) {
         d.classList.toggle("active", i === index);
       });
     }
+
     function go(i) {
       index = Math.max(0, Math.min(i, maxIndex()));
       var target = cards[index];
       track.style.transform = "translateX(" + -target.offsetLeft + "px)";
       updateDots();
     }
+
     function nextSlide() {
       go(index >= maxIndex() ? 0 : index + 1);
     }
+
     function prevSlide() {
       go(index <= 0 ? maxIndex() : index - 1);
     }
@@ -205,6 +169,7 @@
       if (reduceMotion || cards.length <= perView()) return;
       autoTimer = window.setInterval(nextSlide, 6000);
     }
+
     function restart() {
       if (autoTimer) {
         clearInterval(autoTimer);
@@ -218,17 +183,20 @@
         nextSlide();
         restart();
       });
+
     if (prev)
       prev.addEventListener("click", function () {
         prevSlide();
         restart();
       });
+
     viewport.addEventListener("mouseenter", function () {
       if (autoTimer) {
         clearInterval(autoTimer);
         autoTimer = null;
       }
     });
+
     viewport.addEventListener("mouseleave", startAuto);
 
     var rt;
@@ -270,6 +238,7 @@
       img.alt = c;
       if (cap) cap.textContent = c;
     }
+
     function open(i) {
       lastFocus = document.activeElement;
       show(i);
@@ -281,6 +250,7 @@
       document.body.style.overflow = "hidden";
       if (closeBtn) closeBtn.focus();
     }
+
     function close() {
       box.classList.remove("open");
       box.setAttribute("aria-hidden", "true");
@@ -297,18 +267,23 @@
         open(i);
       });
     });
+
     if (closeBtn) closeBtn.addEventListener("click", close);
+
     if (nextBtn)
       nextBtn.addEventListener("click", function () {
         show(current + 1);
       });
+
     if (prevBtn)
       prevBtn.addEventListener("click", function () {
         show(current - 1);
       });
+
     box.addEventListener("click", function (e) {
       if (e.target === box) close();
     });
+
     document.addEventListener("keydown", function (e) {
       if (box.hidden) return;
       if (e.key === "Escape") close();
@@ -323,16 +298,19 @@
     initMobileNav();
     initReviews();
     initLightbox();
+
     wireForm(
       "bookingForm",
       "bookingNote",
       "Thanks — we found 6 suites free for your dates. Our team will email you a booking link shortly.",
     );
+
     wireForm(
       "enquiryForm",
       "enquiryNote",
       "Your enquiry is on its way. We usually reply within a few hours.",
     );
+
     wireForm(
       "newsForm",
       "newsNote",

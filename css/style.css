@@ -256,7 +256,7 @@ section[id] {
 .site-header {
   position: fixed;
   inset: 0 0 auto 0;
-  z-index: 900;
+  z-index: 10000;
   transition:
     background 0.3s var(--ease),
     box-shadow 0.3s var(--ease),

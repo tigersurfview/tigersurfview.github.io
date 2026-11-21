@@ -346,3 +346,63 @@
     );
   });
 })();
+
+/* ---------- mobile menu scroll override ---------- */
+document.addEventListener(
+  "click",
+  function (event) {
+    var link = event.target.closest("#mainNav a[href^='#']");
+
+    if (!link) return;
+
+    var hash = link.getAttribute("href");
+    var target = document.getElementById(hash.slice(1));
+
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    var nav = document.getElementById("mainNav");
+    var toggle = document.getElementById("navToggle");
+    var overlay = document.getElementById("navOverlay");
+    var header = document.getElementById("siteHeader");
+
+    // Close the menu and remove the scroll lock.
+    if (nav) nav.classList.remove("open");
+
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", "false");
+    }
+
+    if (overlay) {
+      overlay.classList.remove("show");
+      overlay.hidden = true;
+    }
+
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+
+    // Wait until the menu has finished closing.
+    setTimeout(function () {
+      var headerHeight = header ? header.getBoundingClientRect().height : 0;
+
+      var destination =
+        target.getBoundingClientRect().top +
+        window.pageYOffset -
+        headerHeight -
+        12;
+
+      history.replaceState(null, "", hash);
+
+      // Force an immediate page scroll.
+      window.scrollTo(0, Math.max(0, destination));
+
+      // Fallback for browsers using a different scrolling element.
+      document.documentElement.scrollTop = Math.max(0, destination);
+      document.body.scrollTop = Math.max(0, destination);
+    }, 400);
+  },
+  true,
+);

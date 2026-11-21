@@ -9,8 +9,8 @@
   --sand-soft: #f8f2e8; /* lighter cards / panels       */
   --sand-deep: #e6dac4; /* deeper section band          */
   --ink: #2a2420; /* warm cocoa text              */
-  --plum: #45303f; /* deep aubergine (dark bands)  */
-  --plum-deep: #33232f; /* footer                       */
+  --turquoise: #1aada6; /* deep aubergine (dark bands)  */
+  --turquoise-deep: #158f89; /* footer                       */
   --amber: #bd7a38; /* honey-amber accent           */
   --amber-dark: #a1642a;
   --amber-soft: #e9d3b0;
@@ -128,7 +128,7 @@ section[id] {
   padding: 10px 18px;
   clip: auto;
   z-index: 2000;
-  background: var(--plum);
+  background: var(--turquoise);
   color: var(--cream);
   border-radius: var(--radius);
 }
@@ -231,12 +231,12 @@ section[id] {
 }
 .btn-cream {
   background: var(--cream);
-  color: var(--plum);
+  color: var(--turquoise);
   border-color: var(--cream);
 }
 .btn-cream:hover {
   background: #fff;
-  color: var(--plum);
+  color: var(--turquoise);
   transform: translateY(-2px);
 }
 .btn-ghost-light {
@@ -407,7 +407,7 @@ section[id] {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--plum-deep);
+  background: var(--turquoise-deep);
 }
 .hero-media img {
   width: 100%;
@@ -555,7 +555,7 @@ section[id] {
   position: absolute;
   right: -14px;
   bottom: 30px;
-  background: var(--plum);
+  background: var(--turquoise);
   color: var(--cream);
   padding: 1.1rem 1.3rem;
   border-radius: var(--radius-lg);
@@ -569,7 +569,7 @@ section[id] {
   font-family: "Fraunces", serif;
   font-size: 1.5rem;
   line-height: 1.05;
-  color: var(--amber-soft);
+  color: var(--sand-soft);
   font-weight: 600;
 }
 .wb-txt {
@@ -597,7 +597,7 @@ section[id] {
   font-family: "Fraunces", serif;
   font-size: 2.3rem;
   font-weight: 600;
-  color: var(--plum);
+  color: var(--turquoise);
   line-height: 1;
 }
 .stat-label {
@@ -868,7 +868,7 @@ section[id] {
   align-items: center;
   justify-content: center;
   background: var(--cream);
-  color: var(--plum);
+  color: var(--turquoise);
   border-radius: 50%;
   opacity: 0;
   transform: scale(0.8);
@@ -885,7 +885,7 @@ section[id] {
    DINING
    ============================================================ */
 .dining {
-  background: var(--plum);
+  background: var(--turquoise);
 }
 .dining-grid {
   display: grid;
@@ -908,8 +908,7 @@ section[id] {
   bottom: 0;
   width: 52%;
   aspect-ratio: 1/1;
-  border: 5px solid var(--plum);
-  box-shadow: var(--shadow-md);
+  border: 5px solid var(--turquoise);
 }
 .dining-copy .section-title {
   margin-bottom: 1.3rem;
@@ -1079,7 +1078,7 @@ section[id] {
    CTA BAND
    ============================================================ */
 .cta-band {
-  background: var(--plum-deep);
+  background: var(--turquoise);
   color: var(--cream);
   padding: clamp(3rem, 6vw, 5rem) 0;
 }
@@ -1266,7 +1265,7 @@ section[id] {
    FOOTER
    ============================================================ */
 .site-footer {
-  background: var(--plum-deep);
+  background: var(--turquoise-deep);
   color: rgba(246, 239, 227, 0.72);
   padding-top: clamp(3rem, 6vw, 4.5rem);
 }
@@ -1493,7 +1492,7 @@ section[id] {
     bottom: 0;
     width: min(84vw, 340px);
     z-index: 950;
-    background: var(--plum);
+    background: var(--turquoise);
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
